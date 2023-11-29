@@ -9,3 +9,8 @@ class PinholeCamera(object):
         self.cy = cy
         self.distortion = (abs(k1) > 0.0000001)
         self.d = [k1, k2, p1, p2, k3]
+
+    # str function
+    def __str__(self):
+        return "PinholeCameraModel: fx: %.2f, fy: %.2f, cx: %.2f, cy: %.2f, width: %d, height: %d" % (
+            self.fx, self.fy, self.cx, self.cy, self.width, self.height)

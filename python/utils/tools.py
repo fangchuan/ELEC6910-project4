@@ -89,3 +89,46 @@ def plot_matches(image0, image1, kpts0, kpts1, scores=None, layout="lr"):
             cv2.circle(out, (x1, y1 + H0), 2, c, -1, lineType=cv2.LINE_AA)
 
     return out
+
+
+def Tcw2qvec(Tcw:np.ndarray):
+    """ Convert 4x4 transformation matrix to quaternion
+
+    Args:
+        Tcw (np.ndarray): camera pose, 4x4 transformation matrix
+
+    Returns:
+        _type_: rotation quaternion
+    """
+    qvec = np.zeros(4)
+    Rcw = Tcw[:3, :3]
+    tr = np.trace(Rcw)
+    if tr > 0:
+        S = np.sqrt(tr+1.0) * 2 # S=4*qw
+        qw = 0.25 * S
+        qx = (Rcw[2,1] - Rcw[1,2]) / S
+        qy = (Rcw[0,2] - Rcw[2,0]) / S
+        qz = (Rcw[1,0] - Rcw[0,1]) / S
+    elif (Rcw[0,0] > Rcw[1,1]) and (Rcw[0,0] > Rcw[2,2]):
+        S = np.sqrt(1.0 + Rcw[0,0] - Rcw[1,1] - Rcw[2,2]) * 2
+        qw = (Rcw[2,1] - Rcw[1,2]) / S
+        qx = 0.25 * S
+        qy = (Rcw[0,1] + Rcw[1,0]) / S
+        qz = (Rcw[0,2] + Rcw[2,0]) / S
+    elif Rcw[1,1] > Rcw[2,2]:
+        S = np.sqrt(1.0 + Rcw[1,1] - Rcw[0,0] - Rcw[2,2]) * 2
+        qw = (Rcw[0,2] - Rcw[2,0]) / S
+        qx = (Rcw[0,1] + Rcw[1,0]) / S
+        qy = 0.25 * S
+        qz = (Rcw[1,2] + Rcw[2,1]) / S
+    else:
+        S = np.sqrt(1.0 + Rcw[2,2] - Rcw[0,0] - Rcw[1,1]) * 2
+        qw = (Rcw[1,0] - Rcw[0,1]) / S
+        qx = (Rcw[0,2] + Rcw[2,0]) / S
+        qy = (Rcw[1,2] + Rcw[2,1]) / S
+        qz = 0.25 * S
+    qvec[0] = qx
+    qvec[1] = qy
+    qvec[2] = qz
+    qvec[3] = qw
+    return qvec

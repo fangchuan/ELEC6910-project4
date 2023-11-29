@@ -1,3 +1,8 @@
+import os
+import sys
+sys.path.append('.')
+sys.path.append('..')
+
 from pathlib import Path
 import logging
 from utils.tools import *
@@ -30,27 +35,29 @@ class SuperPointDetector(object):
         if image.shape[2] == 3:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        logging.debug("detecting keypoints with superpoint...")
+        logging.debug(f"image {image.shape} detecting keypoints with superpoint...")
         image_tensor = image2tensor(image, self.device)
         pred = self.superpoint({'image': image_tensor})
 
         ret_dict = {
             "image_size": np.array([image.shape[0], image.shape[1]]),
-            "torch": pred,
+            # "torch": pred,
             "keypoints": pred["keypoints"][0].cpu().detach().numpy(),
             "scores": pred["scores"][0].cpu().detach().numpy(),
             "descriptors": pred["descriptors"][0].cpu().detach().numpy().transpose()
         }
-
+        logging.debug(f'Keypoints detected: {len(ret_dict["keypoints"])}')
         return ret_dict
 
 
 if __name__ == "__main__":
-    img = cv2.imread("../test_imgs/sequences/00/image_0/000000.png")
+    img = cv2.imread("../data/fern/images_8/image000.png")
 
     detector = SuperPointDetector()
     kptdescs = detector(img)
 
     img = plot_keypoints(img, kptdescs["keypoints"], kptdescs["scores"])
-    cv2.imshow("SuperPoint", img)
-    cv2.waitKey()
+    saved_img_folder = './test'
+    if not os.path.exists(saved_img_folder):
+        os.makedirs(saved_img_folder)
+    cv2.imwrite("test/superpoint.png", img)

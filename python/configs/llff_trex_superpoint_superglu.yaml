@@ -1,0 +1,31 @@
+dataset:
+  name: llff
+  root_path: ../data/trex
+  format: JPG
+  img_downscale_factor: 8
+  pose_recenter: False
+
+
+detector:
+  name: SuperPointDetector
+  descriptor_dim: 256
+  nms_radius: 4
+  keypoint_threshold: 0.005
+  max_keypoints: -1
+  remove_borders: 4
+  cuda: 1
+
+matcher:
+  name: SuperGlueMatcher
+  descriptor_dim: 256
+  weights: "indoor"
+  sinkhorn_iterations: 100
+  match_threshold: 0.2
+  cuda: 1
+
+sfm:
+  pnp_reprojection_thresh: 4.0
+  pnp_kfrm_num: 4   # how many previous keyframes to use for pnp
+  recon_kfrm_num: 10 # how many previous keyframes to use for reconstruct on current frame
+  kfrm_interval: 5  # how many frames to skip for keyframe
+  

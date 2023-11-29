@@ -1,8 +1,9 @@
 import os, imageio
 import logging
-import cv2
 import numpy as np
-import glob
+
+from utils.PinholeCamera import PinholeCamera
+from utils.tools import Tcw2qvec
 
 ########## Slightly modified version of LLFF data loading code 
 ##########  see https://github.com/Fyusion/LLFF for original
@@ -113,11 +114,12 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     
     def imread(f):
         if f.endswith('png'):
-            return imageio.imread(f, ignoregamma=True)
+            return imageio.imread(f, format='PNG-PIL', ignoregamma=True)
         else:
             return imageio.imread(f)
         
-    imgs = imgs = [imread(f)[...,:3]/255. for f in imgfiles]
+    # imgs = [imread(f)[...,:3]/255. for f in imgfiles]
+    imgs = [imread(f)[...,:3] for f in imgfiles]
     imgs = np.stack(imgs, -1)  
     
     print(f'Loaded image data: image shape: {imgs.shape} fx: {poses[:,4,0]}')
@@ -253,7 +255,9 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     print('Loaded', basedir, bds.min(), bds.max())
     
     # Correct rotation matrix ordering and move variable dim to axis 0
-    poses = np.concatenate([poses[:, 1:2, :], -poses[:, 0:1, :], poses[:, 2:, :]], 1)
+    # poses = np.concatenate([poses[:, 1:2, :], -poses[:, 0:1, :], poses[:, 2:, :]], 1)
+    # covert nerf coordinate to colmap coordinate
+    poses = np.concatenate([poses[:, 1:2, :], poses[:, 0:1, :], -poses[:, 2:3, :], poses[:, 3:, :]], 1)
     poses = np.moveaxis(poses, -1, 0).astype(np.float32)
     imgs = np.moveaxis(imgs, -1, 0).astype(np.float32)
     images = imgs
@@ -273,8 +277,8 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     else:
         
         c2w = poses_avg(poses)
-        print('recentered', c2w.shape)
-        print(c2w[:3,:4])
+        # print('recentered', c2w.shape)
+        # print(c2w[:3,:4])
 
         ## Get spiral
         # Get average pose
@@ -325,7 +329,9 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
 class LLFFImageLoader(object):
     default_config = {
         "root_path": "../data/fern/",
-        "format": "JPG"
+        "format": "JPG",
+        "img_downscale_factor": 8,
+        "pose_recenter": True,
     }
 
     def __init__(self, config={}):
@@ -339,19 +345,28 @@ class LLFFImageLoader(object):
         self.img_downscale_factor = self.config["img_downscale_factor"]
         self.pose_recenter = self.config["pose_recenter"]
 
+        self.img_path_lst = [f for f in sorted(os.listdir(os.path.join(self.dataset_basedir, f'images_{self.img_downscale_factor}'))) \
+            if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
+        print(f'img_path_lst: {self.img_path_lst}')
+        
         self.img_id = 0
         self.img_lst, self.pose_lst, self.bds_lst, self.render_pos_N, _ = load_llff_data(basedir=self.dataset_basedir, 
                                                                                          factor=self.img_downscale_factor, 
-                                                                                         recenter=True,
+                                                                                         recenter=self.pose_recenter,
                                                                                          bd_factor=.75)
+        img_h, img_w, focal = self.pose_lst[0, :3, -1]
+        self.cam = PinholeCamera(width=img_w, height=img_h, fx=focal, fy=focal, cx=img_w // 2, cy=img_h // 2)
+        print(self.cam)
 
+    def __getitem__(self, idx):
+        return {'image':self.img_lst[idx], 'image_name':self.img_path_lst[idx]}
+    
     def __next__(self):
         if self.img_id < len(self):
             img = self.img_lst[self.img_id]
-
+            image_name = self.img_path_lst[self.img_id]
             self.img_id += 1
-
-            return img
+            return {'image':img, 'image_name':image_name}
         raise StopIteration()
     
     def __iter__(self):
@@ -359,4 +374,26 @@ class LLFFImageLoader(object):
 
     def __len__(self):
         return len(self.img_lst)
+    
+    def gt_poses(self):
+        assert self.pose_recenter == False
+        return self.pose_lst
+
+    def save_gt_trajectory(self, output_filepath:str):
+        """ save ground truth trajectory in the format of TUM trajectory
+
+        Args:
+            output_filepath (str): _description_
+        """
+        assert self.pose_recenter == False
+        poses = self.pose_lst[:, :3, :4]
+
+        with open(output_filepath, 'w') as f:
+            for i, pose in enumerate(poses):
+                Twc = np.eye(4)
+                Twc[:3, :3] = pose[:3,:3]
+                Twc[:3, 3] = pose[:3, 3]
+                Tcw = np.linalg.inv(Twc)
+                f.write(f'{i} {" ".join([str(t) for t in Twc[:3, 3]])} {" ".join([str(q) for q in Tcw2qvec(Twc)])}\n')
+
 
