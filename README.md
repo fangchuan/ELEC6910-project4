@@ -9,13 +9,17 @@
 
 ## 1. Run the code:
 
-1. `pip install -r requirement.txt`
-2. `cd python`
-3. reconstruct llff-fern:  `python main.py --config configs/llff_fern_superpoint_superglu.yaml`
-4. Reconstruct llff-trex: `python main.py --config configs/llff_trex_superpoint_superglu.yaml`
-5. Reconstruct templeRing: `python main.py --config configs/templering_superpoint_superglu.yaml`
+1. prepare the required data, put them into the ./data/ folder: 
+   * [llff-fern](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1);
+   * [llff-trex](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1);
+   * [templeRing](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1);
+2. `pip install -r requirement.txt`
+3. `cd python`
+4. reconstruct llff-fern:  `python main.py --config configs/llff_fern_superpoint_superglu.yaml`
+5. Reconstruct llff-trex: `python main.py --config configs/llff_trex_superpoint_superglu.yaml`
+6. Reconstruct templeRing: `python main.py --config configs/templering_superpoint_superglu.yaml`
 
-6. If you want to visualize the resulting point clouds and camera pose, run `main.ipynb` by Jupyter.
+7. If you want to visualize the resulting point clouds and camera pose, run `main.ipynb` by Jupyter.
 
 ## 2. Camera trajectory evaluation
 
@@ -49,15 +53,15 @@
 
    * Llff-fern:
 
-     ![image-20231129170250562](/Users/fc/Desktop/学习/ELEC6910/projects/project4/assets/image-20231129170250562.png)
+     ![image-20231129170250562](./assets/image-20231129170250562.png)
 
    * Llff-trex:
 
-     ![image-20231129170836912](/Users/fc/Desktop/学习/ELEC6910/projects/project4/assets/image-20231129170836912.png)
+     ![image-20231129170836912](./assets/image-20231129170836912.png)
 
    * templeRing:
 
-     ![image-20231129165915545](/Users/fc/Desktop/学习/ELEC6910/projects/project4/assets/image-20231129165915545.png)
+     ![image-20231129165915545](./assets/image-20231129165915545.png)
 
 
 
@@ -69,6 +73,6 @@
 
 
 ## 4. Reference
-[Hierarchical Localization at Large Scale with Superpoint Graphs](https://arxiv.org/pdf/2007.01578.pdf)
-[Python-VO](https://github.com/Shiaoming/Python-VO)
-[3D Reconstruction using Structure from Motion](https://github.com/harish-vnkt/structure-from-motion)
+1. [Hierarchical Localization at Large Scale with Superpoint Graphs](https://arxiv.org/pdf/2007.01578.pdf)
+2. [Python-VO](https://github.com/Shiaoming/Python-VO)
+3. [3D Reconstruction using Structure from Motion](https://github.com/harish-vnkt/structure-from-motion)
