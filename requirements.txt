@@ -1,0 +1,14 @@
+torch>=1.1
+torchvision>=0.3
+numpy
+opencv-python
+tqdm>=4.36.0
+matplotlib
+plotly
+scipy
+h5py
+scikit-image
+scikit-learn
+g2o-python
+ipyvolume
+jupyterlab
