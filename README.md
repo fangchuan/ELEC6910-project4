@@ -31,7 +31,7 @@
 
    * Llff-trex:
 
-     Rotation_rmse in degree: $3.83^\circ$
+     Rotation_rmse in degree: $2.60^\circ$
 
 2. translation evaluation using evo_rpe: evo_ape tum xxx_gt_trajectory.txt xxx_est_trajectory.txt -asp -r trans_part
 
@@ -41,7 +41,7 @@
 
    * Llff-trex:
 
-     Translation_rmse in meter: $0.115$
+     Translation_rmse in meter: $0.057$
 
      
 

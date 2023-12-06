@@ -138,7 +138,7 @@ class SFM:
             errors = []
 
             # reconstruct unreconstructed points from all of the previous keyframes
-            for i in range(len(self.prev_frames_lst)-1, max(len(self.prev_frames_lst)-self.RECON_PREV_KEYFRAME_NUM, -1), -1):
+            for i in range(len(self.prev_frames_lst)-1, max(len(self.prev_frames_lst)-self.RECON_PREV_KEYFRAME_NUM-1, -1), -1):
                 old_view = self.prev_frames_lst[i]
                 if i % self.KEYFRAME_INTVAL != 0:
                     continue
@@ -166,6 +166,7 @@ class SFM:
                         # add observation to the map point
                         map_point_idx = self.point_map[(self.get_index_of_view(old_view), old_view_inlier_idxs[i])]
                         self.map[map_point_idx].add_observation(self.get_index_of_view(cur_view), cur_view_inlier_idxs[i])
+                        self.point_map[(self.get_index_of_view(cur_view), cur_view_inlier_idxs[i])] = map_point_idx
                     else:
                         # add new map point using the observation pair
                         old_view_inlier_idxs_filtered.append(old_view_inlier_idxs[i])
@@ -271,7 +272,7 @@ class SFM:
             self.map.append(map_point)
             self.point_counter += 1
 
-        # logging.debug(f"Number of new points reconstructed: {len(reprojection_error2)}")
+        logging.info(f"Number of new points reconstructed: {len(reprojection_error2)}")
         # concatenate the reprojection error images
         vis_repro_image = np.concatenate((vis_repro_image1, vis_repro_image2), axis=1)
         return reprojection_error1, reprojection_error2, vis_repro_image
@@ -403,6 +404,9 @@ class SFM:
         with open(output_filepath, 'w') as f:
             for i in range(len(self.prev_frames_lst)):
                 Tcw = self.prev_frames_lst[i].Tcw
+                # Tcw = np.eye(4)
+                # Tcw[:3, :3] = self.prev_frames_lst[i].R
+                # Tcw[:3, 3] = self.prev_frames_lst[i].t.flatten()
                 Twc = np.linalg.inv(Tcw)
                 f.write(f'{i} {" ".join([str(t) for t in Twc[:3, 3]])} {" ".join([str(q) for q in Tcw2qvec(Twc)])}\n')
         
