@@ -13,7 +13,7 @@
    * [llff-fern](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1);
    * [llff-trex](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1);
    * [templeRing](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1);
-2. `pip install -r requirement.txt`
+2. `pip install -r requirements.txt`
 3. `cd python`
 4. reconstruct llff-fern:  `python main.py --config configs/llff_fern_superpoint_superglu.yaml`
 5. Reconstruct llff-trex: `python main.py --config configs/llff_trex_superpoint_superglu.yaml`
@@ -23,25 +23,25 @@
 
 ## 2. Camera trajectory evaluation
 
-1. rotation evaluation using evo_rpe:  evo_rpe tum xxx_gt_trajectory.txt xxx_est_trajectory.txt -asp -r angle_deg
+1. rotation evaluation using evo_rpe:  evo_ape tum xxx_gt_trajectory.txt xxx_est_trajectory.txt -asp -r angle_deg
 
    * Llff-fern:
 
-     Rotation_rmse in degree: $1.77^\circ$
+     Rotation_rmse in degree: $5.23^\circ$
 
    * Llff-trex:
 
-     Rotation_rmse in degree: $0.83^\circ$
+     Rotation_rmse in degree: $3.83^\circ$
 
-2. translation evaluation using evo_rpe: evo_rpe tum xxx_gt_trajectory.txt xxx_est_trajectory.txt -asp -r trans_part
+2. translation evaluation using evo_rpe: evo_ape tum xxx_gt_trajectory.txt xxx_est_trajectory.txt -asp -r trans_part
 
    * Llff-fern:
 
-     Translation_rmse in meter: $0.074$
+     Translation_rmse in meter: $0.028$
 
    * Llff-trex:
 
-     Translation_rmse in meter: $0.078$
+     Translation_rmse in meter: $0.115$
 
      
 
